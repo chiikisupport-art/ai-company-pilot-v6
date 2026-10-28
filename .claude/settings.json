@@ -34,10 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node",
-            "args": [
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard.cjs"
-            ],
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.cjs\"",
             "timeout": 6000
           }
         ]
