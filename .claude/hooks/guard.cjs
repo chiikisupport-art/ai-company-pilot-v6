@@ -40,7 +40,8 @@ if (tool==='Agent') {
   // Top-level dispatcher can launch only the two named employees; never nested agents.
   if (actor) block('nested agents forbidden');
   if (!['office-intake','office-writer'].includes(ti.subagent_type)) block('employee inactive');
-  if (ti.run_in_background !== false) block('explicit foreground execution required');
+  // Some Claude Code builds have no run_in_background field; reject only an explicit background request.
+  if (ti.run_in_background === true) block('background execution forbidden');
   process.exit(0);
 }
 if (tool==='Edit') block('edits to existing files forbidden');

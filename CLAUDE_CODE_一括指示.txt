@@ -4,7 +4,7 @@
 実行前：Claude Code CLI v2.1.210以上か確認し（確認できなければ停止）、nodeが利用可能であるか確認。/permissions で本プロジェクトの設定が有効であることを確認。「bypassPermissions」「acceptEdits」「auto」等で開始しない。フックの動作を確認できない場合も作業しない。未確認事項は未確認と報告。
 
 手順：
-重要：Agentツールで社員を呼び出す際は `run_in_background: false` を明示すること。省略は禁止。ガードが省略・true・入れ子実行を拒否した場合は即停止。社員の同時呼出しもしない。
+重要：Agentツールに `run_in_background` の項目がある場合は `false` を明示し、項目がない場合は省略して呼び出す。`true` は禁止。ガードが呼出しを拒否した場合は即停止。社員の同時呼出しはしない。社員がバックグラウンドで動く場合は、その完了を待ち、成果物をReadで確認してから次の手順へ進む。
 1. 受付 office-intake だけを呼び出し、workspace/00-requests/JOB-TEST-001.mdを読ませ、workspace/01-intake/JOB-TEST-001.md に新しい作業票を作成。Readで読み戻す。
 2. 1が成功した場合のみ、下書き office-writer だけを呼び出し、作業票を参照してworkspace/03-drafts/DRAFT-TEST-001.mdに日本語120～180文字の紹介文を新規作成。Readで読み戻す。
 3. 2ファイルのみの新規作成と原文整合性を確認。未認可書込を指示しない。拒否テストは必要なら別途会長の許可を得た安全なダミー対象で実施。
