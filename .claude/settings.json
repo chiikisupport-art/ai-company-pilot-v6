@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Agent(office-intake)",
+      "Agent(office-writer)",
+      "Edit(/workspace/01-intake/JOB-TEST-001.md)",
+      "Edit(/workspace/03-drafts/DRAFT-TEST-001.md)"
+    ],
+    "deny": [
+      "Bash",
+      "PowerShell",
+      "WebFetch",
+      "WebSearch",
+      "NotebookEdit",
+      "mcp__*",
+      "Agent(office-research)",
+      "Agent(office-auditor)",
+      "Agent(office-records)",
+      "Edit(/.claude/**)",
+      "Edit(/workspace/00-requests/**)",
+      "Edit(/workspace/02-research/**)",
+      "Edit(/workspace/04-audit/**)",
+      "Edit(/workspace/05-records/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|Read|Glob|Grep|Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.cjs\"",
+            "timeout": 6000
+          }
+        ]
+      }
+    ]
+  }
+}
