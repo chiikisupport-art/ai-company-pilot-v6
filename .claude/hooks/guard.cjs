@@ -1,9 +1,11 @@
 "use strict";
-// AI Company Pilot v5: built-in file tools only. This hook never writes files or makes network calls.
+// AI Company v7: built-in file tools only. This hook never writes files or makes network calls.
 const fs = require("node:fs");
 const path = require("node:path");
 const inputText = fs.readFileSync(0, "utf8");
 function block(why) { process.stderr.write("AI-COMPANY DENIED: " + why + "\n"); process.exit(2); }
+// An unexpected crash would exit 1, which Claude Code treats as non-blocking; deny instead.
+process.on('uncaughtException', (e) => block('guard error: ' + (e && e.message)));
 let evt;
 try { evt = JSON.parse(inputText); } catch { block("invalid hook input"); }
 const rootEnv = process.env.CLAUDE_PROJECT_DIR;
@@ -36,10 +38,19 @@ const tool=evt.tool_name;
 const ti=evt.tool_input;
 if (!ti || typeof ti!=="object") block('missing tool input');
 const actor=evt.agent_type || '';
+// Each employee may only create new files of its own kind, named after an existing request ID.
+const ID="([A-Z0-9][A-Z0-9-]{0,40})";
+const ROLES={
+  'office-intake':   new RegExp('^workspace/01-intake/JOB-'+ID+'\\.md$'),
+  'office-research': new RegExp('^workspace/02-research/RES-'+ID+'\\.md$'),
+  'office-writer':   new RegExp('^workspace/03-drafts/DRAFT-'+ID+'(?:-r2)?\\.md$'),
+  'office-auditor':  new RegExp('^workspace/04-audit/AUDIT-'+ID+'(?:-r2)?\\.md$'),
+  'office-records':  new RegExp('^workspace/05-records/LOG-'+ID+'\\.md$'),
+};
 if (tool==='Agent') {
-  // Top-level dispatcher can launch only the two named employees; never nested agents.
+  // Only the top-level dispatcher may launch the five employees; never nested agents.
   if (actor) block('nested agents forbidden');
-  if (!['office-intake','office-writer'].includes(ti.subagent_type)) block('employee inactive');
+  if (!Object.prototype.hasOwnProperty.call(ROLES, ti.subagent_type)) block('unknown employee');
   // Some Claude Code builds have no run_in_background field; reject only an explicit background request.
   if (ti.run_in_background === true) block('background execution forbidden');
   process.exit(0);
@@ -47,8 +58,11 @@ if (tool==='Agent') {
 if (tool==='Edit') block('edits to existing files forbidden');
 if (tool==='Write') {
   const r=relfile(ti.file_path);
-  const targets={'office-intake':'workspace/01-intake/JOB-TEST-001.md', 'office-writer':'workspace/03-drafts/DRAFT-TEST-001.md'};
-  if (!targets[actor] || targets[actor]!==r) block('role or target mismatch');
+  const role=Object.prototype.hasOwnProperty.call(ROLES, actor) ? ROLES[actor] : null;
+  const m=role && role.exec(r);
+  if (!m) block('role or target mismatch');
+  // Every output must belong to a request the chairman actually filed.
+  if (!fs.existsSync(path.join(root,'workspace','00-requests','JOB-'+m[1]+'.md'))) block('no matching request');
   if (typeof ti.content!=='string' || !ti.content.trim()) block('empty content');
   if (Buffer.byteLength(ti.content,'utf8')>40000) block('draft exceeds 40KB limit');
   if (fs.existsSync(path.resolve(root,r))) block('create-only: file already exists');

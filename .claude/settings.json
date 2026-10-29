@@ -6,9 +6,15 @@
       "Glob",
       "Grep",
       "Agent(office-intake)",
+      "Agent(office-research)",
       "Agent(office-writer)",
-      "Edit(/workspace/01-intake/JOB-TEST-001.md)",
-      "Edit(/workspace/03-drafts/DRAFT-TEST-001.md)"
+      "Agent(office-auditor)",
+      "Agent(office-records)",
+      "Edit(/workspace/01-intake/**)",
+      "Edit(/workspace/02-research/**)",
+      "Edit(/workspace/03-drafts/**)",
+      "Edit(/workspace/04-audit/**)",
+      "Edit(/workspace/05-records/**)"
     ],
     "deny": [
       "Bash",
@@ -17,14 +23,12 @@
       "WebSearch",
       "NotebookEdit",
       "mcp__*",
-      "Agent(office-research)",
-      "Agent(office-auditor)",
-      "Agent(office-records)",
       "Edit(/.claude/**)",
       "Edit(/workspace/00-requests/**)",
-      "Edit(/workspace/02-research/**)",
-      "Edit(/workspace/04-audit/**)",
-      "Edit(/workspace/05-records/**)"
+      "Edit(/workspace/materials/**)",
+      "Edit(/CLAUDE.md)",
+      "Edit(/README_最初に読む.md)",
+      "Edit(/CHECKSUMS_SHA256.txt)"
     ]
   },
   "hooks": {
